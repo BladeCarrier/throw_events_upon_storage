@@ -21,3 +21,6 @@ def start_sending(verbose=False):
             time.sleep(dtime)
         if verbose:
             print n_events_per_bunch,"sent"
+
+if __name__ == "__main__":
+    start_sending()
