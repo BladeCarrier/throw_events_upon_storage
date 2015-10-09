@@ -3,6 +3,18 @@ __doc__="""Library with everything about events representation"""
 import ROOT
 from root_numpy import random_sample
 
+es_type_float= { "type" : "float","index" : "not_analyzed" }
+es_type_int = { "type" : "int","index" : "not_analyzed" }
+es_event_mapping = {
+    "_source" : { "enabled" : False },
+    "properties" : {
+        "muonHits" : es_type_float,
+        "hcalEnergy" : es_type_float,
+        "avgMass"  : es_type_float,
+
+    }
+}
+
 # name: file_path
 hist_paths = { 
     "muonHits": "hists/Moore1HistAdder-154803-20150614T005209-EOR.root",
@@ -15,6 +27,24 @@ hist_branches = {
     "hcalEnergy": "Hlt1RoutingBitsWriter/RoutingBit33",
     "avgMass": "Hlt1RoutingBitsWriter/RoutingBit33",
     }
+
+#dummies
+def _add_dummies(n_dummies):
+    """add some dummy variables to make event look like a real one"""
+    import os
+    import random
+    all_hists =filter( lambda tfile_name: tfile_name.endswith(".root"), os.listdir("hists"))
+
+    for i in xrange(n_dummies):
+        hist_name = random.choice(all_hists)
+        hist_path =  os.path.join("hists",hist_name)
+        var_name = "dummy"+str(i)
+        hist_branches[var_name] = hist_path
+        hist_branches[var_name] = "Hlt1RoutingBitsWriter/RoutingBit33"
+        es_event_mapping["properties"][var_name] = es_type_float
+_add_dummies(int(1e4))
+#/dummies
+
 # name: TFile
 histFiles = { feature: ROOT.TFile(hist_paths[feature]) for feature in hist_paths}
 # name: root histogram (TH*)
@@ -25,15 +55,6 @@ hists = { feature: histFiles[feature].Get(hist_branches[feature]) for feature in
 
 
 
-es_event_mapping = {
-    "_source" : { "enabled" : False },
-    "properties" : {
-        "muonHits" : { "type" : "float","index" : "not_analyzed" },
-        "hcalEnergy" : { "type" : "float","index" : "not_analyzed" },
-        "avgMass"  : { "type" : "float","index" : "not_analyzed" },
-
-    }
-}
 
 def generate_zmq_package(n_events=1):
     #n_events -> package with that many events

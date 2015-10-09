@@ -32,7 +32,9 @@ class Indexer:
                 if verbose:
                     print "run id recieved:",package
                     n_events_in_run = 0
+                    
                 self.current_run_id = "run"+str(package)
+                es.indices.flush()
                 if not es.indices.exists(self.current_run_id):
                     self.create_index(self.current_run_id)
                     if verbose:

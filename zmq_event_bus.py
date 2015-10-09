@@ -14,8 +14,8 @@ class Bus:
                  port = 'tcp://127.0.0.1:43000',
                  verbose = True,
                  dtime = 0,#time between main loop iterations
-                 n_events_per_run_id = 5e3,
-                 n_events_variance_per_run_id = 1e3,                 
+                 n_events_per_run_id = 3e5,
+                 n_events_variance_per_run_id = 2e5,                 
                  generate_events = True, #generate fake events via event.generate_package if queue is empty
                  n_events_per_package=1e3, #only concerns generated events
                  n_events_variance_per_package=5e2, #only converns generated events
@@ -34,11 +34,11 @@ class Bus:
 
         #run id switch
         self.current_run_id = 15000
-        self.client_run_id_obsolete = False
+        self.client_run_id_obsolete = True
         self.n_events_per_run_id = n_events_per_run_id
         self.n_events_variance_per_run_id = n_events_variance_per_run_id
-        self.events_until_next_run = int(np.random.normal(self.n_events_per_run_id,
-                                                        self.n_events_variance_per_run_id)) 
+        self.events_until_next_run = max(1,int(np.random.normal(self.n_events_per_run_id,
+                                                        self.n_events_variance_per_run_id))) 
     def run_server(self):
         """launch it..."""
         
@@ -78,9 +78,6 @@ class Bus:
                         n_events = max(1,n_events) #in case of a negative number
                         n_events = min(n_events,self.events_until_next_run) #cut at the end of run_id
                         
-                        if n_events==0:
-                            print "empty n_events", self.events_until_next_run
-                            print self.events_until_next_run
                         package = event.generate_zmq_package(n_events)
                         socket.send(pickle.dumps(package))
                         
@@ -89,8 +86,8 @@ class Bus:
                         if self.events_until_next_run <=0:
                             #going to the next run
                             self.current_run_id +=1
-                            self.events_until_next_run = int(np.random.normal(self.n_events_per_run_id,
-                                                        self.n_events_variance_per_run_id)) 
+                            self.events_until_next_run = max(1,int(np.random.normal(self.n_events_per_run_id,
+                                                        self.n_events_variance_per_run_id)))  
                             self.client_run_id_obsolete = True
                             if verbose:
                                 print "announcing run_id",self.current_run_id
