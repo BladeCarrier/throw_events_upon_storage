@@ -1,5 +1,4 @@
-__doc__ = """this module knows how to transform ElasticSearch aggregation output into fancy plots"""
-import matplotlib.pyplot as plt
+__doc__ = """this module knows how to transform ElasticSearch aggregation output into histogram-ready data"""
 from elastic_scripts import realValueHistogram, heatmap
 
 def parse_terms_1d(data,xmin,xmax,n_bins,starting_id=0):
@@ -14,11 +13,10 @@ def parse_terms_1d(data,xmin,xmax,n_bins,starting_id=0):
     hist_bins =  [ (0.5*(bin_bounds[i]+bin_bounds[i+1]),data_dict[i]) for i in data_dict.keys()]
     return hist_bins
 
-def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
-    """i plot the histogram of a variable xname between xmin,xmax with xbins uniform bins.
-	i require es to be an elasticsearch.Elasticsearch client. """
-    if ax is None:
-	ax = plt
+def get_1d_hist(xname,xmin,xmax,xbins,es,index="*"):
+    """i assemble the histogram of a variable xname between xmin,xmax with xbins uniform bins.
+    i require es to be an elasticsearch.Elasticsearch client.
+    Output: [X_bin_centers],[bin_counts"""
     query_dsl = {
         "aggs" : {
             "1d_hist" : realValueHistogram(xname,xmin,xmax,xbins)
@@ -28,11 +26,9 @@ def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
     data = es.search(index=index,body=query_dsl)["aggregations"]["1d_hist"]["buckets"]
 
     bins_list = parse_terms_1d(data,xmin,xmax,xbins)
-    x,c = zip(*bins_list)
-    return ax.hist(x,
-                range = [xmin,xmax],bins= xbins ,
-                weights=c)
-    
+    return zip(*bins_list)
+
+
 
 
 
@@ -59,14 +55,14 @@ def parse_terms_2d(data,xmin,xmax,xbins,ymin,ymax,ybins):
         hist_bins += [ (x,y,count) for (x,count) in bins_list]
     return hist_bins
 
-def plot_2d_hist(xname,xmin,xmax,xbins,
+
+def get_2d_hist(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
-                 es,index="*",ax = None):
+                 es,index="*"):
     """i plot the 2d histogram (heatmap) of a variables xname and yname 
-	between [xmin,xmax],[ymin,ymax] with [xbins,ybins] uniform bins respectively.
-	i require es to be an elasticsearch.Elasticsearch client"""
-    if ax is None:
-	ax = plt
+    between [xmin,xmax],[ymin,ymax] with [xbins,ybins] uniform bins respectively.
+    i require es to be an elasticsearch.Elasticsearch client
+    Output: [x_bin_center],[y_bin_center],[bin_count]"""
     query_dsl = {
         "aggs" : {
             "2d_hist" : heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname)
@@ -77,9 +73,6 @@ def plot_2d_hist(xname,xmin,xmax,xbins,
 
     bins_list = parse_terms_2d(data,xmin,xmax,xbins,ymin,ymax,ybins)
 
-    x,y,c = zip(*bins_list)
-
-    return ax.hist2d(x,y,bins=[xbins,ybins],
-                range = [[xmin,xmax],[ymin,ymax]],
-                weights=c)
+    return zip(*bins_list)
+    
 
