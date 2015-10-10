@@ -14,11 +14,11 @@ class Bus:
                  port = 'tcp://127.0.0.1:43000',
                  verbose = True,
                  dtime = 0,#time between main loop iterations
-                 n_events_per_run_id = 3e5,
-                 n_events_variance_per_run_id = 2e5,                 
+                 n_events_per_run_id = 3e4,
+                 n_events_variance_per_run_id = 2e4,                 
                  generate_events = True, #generate fake events via event.generate_package if queue is empty
-                 n_events_per_package=1e3, #only concerns generated events
-                 n_events_variance_per_package=5e2, #only converns generated events
+                 n_events_per_package=5e2, #only concerns generated events
+                 n_events_variance_per_package=2e2, #only converns generated events
                  ):
         '''DIM/ZMQ bus emulator that generates events'''
         
