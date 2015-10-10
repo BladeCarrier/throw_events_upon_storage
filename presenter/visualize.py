@@ -14,9 +14,11 @@ def parse_terms_1d(data,xmin,xmax,n_bins,starting_id=0):
     hist_bins =  [ (0.5*(bin_bounds[i]+bin_bounds[i+1]),data_dict[i]) for i in data_dict.keys()]
     return hist_bins
 
-def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*"):
+def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
     """i plot the histogram of a variable xname between xmin,xmax with xbins uniform bins.
-	i require es to be an elasticsearch.Elasticsearch client"""
+	i require es to be an elasticsearch.Elasticsearch client. """
+    if ax is None:
+	ax = plt
     query_dsl = {
         "aggs" : {
             "1d_hist" : realValueHistogram(xname,xmin,xmax,xbins)
@@ -27,11 +29,10 @@ def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*"):
 
     bins_list = parse_terms_1d(data,xmin,xmax,xbins)
     x,c = zip(*bins_list)
-    _= plt.hist(x,
+    return ax.hist(x,
                 range = [xmin,xmax],bins= xbins ,
                 weights=c)
-
-
+    
 
 
 
@@ -60,11 +61,12 @@ def parse_terms_2d(data,xmin,xmax,xbins,ymin,ymax,ybins):
 
 def plot_2d_hist(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
-                 es,index="*"):
+                 es,index="*",ax = None):
     """i plot the 2d histogram (heatmap) of a variables xname and yname 
 	between [xmin,xmax],[ymin,ymax] with [xbins,ybins] uniform bins respectively.
 	i require es to be an elasticsearch.Elasticsearch client"""
-    
+    if ax is None:
+	ax = plt
     query_dsl = {
         "aggs" : {
             "2d_hist" : heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname)
@@ -77,7 +79,7 @@ def plot_2d_hist(xname,xmin,xmax,xbins,
 
     x,y,c = zip(*bins_list)
 
-    _= plt.hist2d(x,y,bins=[xbins,ybins],
+    return ax.hist2d(x,y,bins=[xbins,ybins],
                 range = [[xmin,xmax],[ymin,ymax]],
                 weights=c)
 
