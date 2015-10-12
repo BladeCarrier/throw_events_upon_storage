@@ -11,19 +11,10 @@ div #sidebar
 </style>
 
 <div id="sidebar">
-  <span>layout</span>
+  <span>Dashboards</span>
   <br/>
-  <input type="radio" name="dashboard" value="dashboard_mpl" >dashboard_mpl</input>
-  <br/>
-  <input type="radio" name="dashboard" value="dashboard_bokeh" >dashboard_bokeh</input>
-  <br/>
-  <input type="radio" name="dashboard" value="dummy hist" checked>dummy hist</input>
-  <br/>
-  <input type="radio" name="dashboard" value="bokeh_avgmass" >bokeh_avgmass</input>
-  <br/>
-  <input type="radio" name="dashboard" value="some heatmap" >some heatmap</input>
-  <br/>
-  <button type="button" id="query">View</button>
+  <div id="dashboards"></div>
+  <button type="button" id="view_dashboard">View</button>
   <br/>
 </div>
 <div id="loading-div-background">
@@ -42,7 +33,21 @@ function datetime_to_epoch(datetime)
   return epoch;
 }
 
-$("#query").click(function() {  
+$(function(){
+    $.ajax({
+        type: "POST",
+        async:true,
+        contentType: "application/json; charset=utf-8",
+        url: "/init",
+        success: function (dashboards) {
+            var dashboards_index = $("#dashboards");
+            dashboards_index.html(dashboards);   
+         },
+        dataType: "html"
+    });
+                   
+})
+$("#view_dashboard").click(function() {  
 
   $("#loading-div-background").show();
   $("#container").hide();
@@ -52,7 +57,7 @@ $("#query").click(function() {
     type: "POST",
     async:true,
     contentType: "application/json; charset=utf-8",
-    url: "/query",
+    url: "/show_dashboard",
     data: JSON.stringify(qu),
     success: function (data) {     
      var graph = $("#container");

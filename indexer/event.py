@@ -11,7 +11,7 @@ es_event_mapping = {
         "muonHits" : es_type_float,
         "hcalEnergy" : es_type_float,
         "avgMass"  : es_type_float,
-
+        "invariantMass": es_type_float,
     }
 }
 
@@ -20,12 +20,15 @@ hist_paths = {
     "muonHits": "hists/Moore1HistAdder-154803-20150614T005209-EOR.root",
     "hcalEnergy": "hists/Moore1HistAdder-154807-20150614T015931-EOR.root",
     "avgMass": "hists/Moore1HistAdder-154825-20150614T042801-EOR.root",
+    "invariantMass":"hists/Moore1HistAdder-154812-20150614T022928-EOR.root"
     }
 # name: branch
 hist_branches = { 
     "muonHits": "Hlt1RoutingBitsWriter/RoutingBit33",
     "hcalEnergy": "Hlt1RoutingBitsWriter/RoutingBit33",
     "avgMass": "Hlt1RoutingBitsWriter/RoutingBit33",
+    "invariantMass": "Hlt1RoutingBitsWriter/RoutingBit33",
+
     }
 
 #dummies
