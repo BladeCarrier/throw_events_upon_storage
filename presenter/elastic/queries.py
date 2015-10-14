@@ -58,14 +58,18 @@ def parse_terms_2d(data,xmin,xmax,xbins,ymin,ymax,ybins):
 
 def get_2d_hist(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
-                 es,index="*"):
+                 es,index="*",generator='default'):
     """i plot the 2d histogram (heatmap) of a variables xname and yname 
     between [xmin,xmax],[ymin,ymax] with [xbins,ybins] uniform bins respectively.
     i require es to be an elasticsearch.Elasticsearch client
+    "generator" arg determines the way Lucene Expression scripts are generated,
+        generator = "default" or "two-trees" generates 2 separate trees for X and Y and returns x_tree + x_bins*y_tree
+        generator = "single-tree" generates one tree that returns both X and Y 
     Output: [x_bin_center],[y_bin_center],[bin_count]"""
+    
     query_dsl = {
         "aggs" : {
-            "2d_hist" : heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname)
+            "2d_hist" : heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname,generator)
 
         }
     }

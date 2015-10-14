@@ -1,3 +1,5 @@
+#prototype code; view at your own risk
+__doc__="demo dashboard that visualizes a mixture of 1d and 2d histograms aggregated from ElasticSearch data"
 import json
 from dashboard import Dashboard
 import mpld3

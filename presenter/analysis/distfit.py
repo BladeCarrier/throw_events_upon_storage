@@ -188,28 +188,28 @@ class DistributionsMixture(object):
     def compile(self,X,n_negative_samples=None):
         if n_negative_samples is None:
             n_negative_samples = 1000
-	
-	pos_samples = X.loc[:, self.column_ranges.keys()].values.astype(floatX)
+        
+        pos_samples = X.loc[:, self.column_ranges.keys()].values.astype(floatX)
 
         pos_data, neg_data = T.matrices('SigData', 'BckData')
         pos_w, neg_w, parameters = T.vectors('SigW', 'BckW', 'parameters')
 
-	neg_samples, neg_weight = self.generate_negative_samples(n_negative_samples=n_negative_samples,
+        neg_samples, neg_weight = self.generate_negative_samples(n_negative_samples=n_negative_samples,
                                                                  strategy=self.sampling_strategy)
 
         givens = {pos_data: pos_samples, neg_data: neg_samples,  neg_w: neg_weight}
 
-	pdf = self.prepare_pdf()
+        pdf = self.prepare_pdf()
         pdfs, summands = pdf(pos_data, neg_data, neg_weights=neg_w, weights=parameters)
         result = - T.mean(pos_w * T.log(pdfs))
 
-	self.Tfunction = theano.function([parameters,pos_w], result, givens=givens)
+        self.Tfunction = theano.function([parameters,pos_w], result, givens=givens)
         self.Tderivative = theano.function([parameters,pos_w], T.grad(result, parameters), givens=givens)
-	self.X=X
+        self.X=X
         
 
     def fit(self,sample_weight,values_init=None):
-	X = self.X
+        X = self.X
 
         assert isinstance(X, pandas.DataFrame), 'please pass pandas.DataFrame first'
         for column_name, column_range in self.column_ranges.items():
@@ -218,8 +218,8 @@ class DistributionsMixture(object):
                 '{} out of range'.format(column_name)
 
         pos_weight = check_sample_weight(X, sample_weight=sample_weight,normalize = True)
-	self.Function = lambda parameters:self.Tfunction(parameters,pos_weight)
-	self.Derivative = lambda parameters:self.Tderivative(parameters,pos_weight)
+        self.Function = lambda parameters:self.Tfunction(parameters,pos_weight)
+        self.Derivative = lambda parameters:self.Tderivative(parameters,pos_weight)
 
         lower_boundary = numpy.zeros(len(self.parameters_ranges))
         upper_boundary = numpy.zeros(len(self.parameters_ranges))
@@ -234,14 +234,17 @@ class DistributionsMixture(object):
                 assert lower_boundary[i] <= initial_values[i] <= upper_boundary[i], \
                     'For variable {} passed initial value was outside range'.format(param_name)
 
-	if values_init is not None:
-	    assert type(values_init) is dict
+        if values_init is not None:
+            assert type(values_init) is dict
             for i,param_name in enumerate(self.parameters_ranges.keys()):
                 if param_name in values_init:
                     initial_values[i] = values_init[param_name]
-	self.optimization_result = minimize(self.Function, initial_values, jac=self.Derivative,
+        
+        self.optimization_result = minimize(self.Function, initial_values, jac=self.Derivative,
                                             # hessp=self.HessianTimesP,
-                                            bounds=list(self.parameters_ranges.values()))
+                                            bounds=list(self.parameters_ranges.values()),
+                                            #options={"disp":True}
+                                            )
         self.parameters = OrderedDict(zip(self.parameters_ranges, self.optimization_result.x))
 
     def get_params(self):

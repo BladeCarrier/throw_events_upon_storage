@@ -12,6 +12,10 @@ es_event_mapping = {
         "hcalEnergy" : es_type_float,
         "avgMass"  : es_type_float,
         "invariantMass": es_type_float,
+        "dkpipi":es_type_float,
+        "dskkpi":es_type_float,
+        "lambdac":es_type_float,
+        "phi":es_type_float,
     }
 }
 
@@ -20,15 +24,23 @@ hist_paths = {
     "muonHits": "hists/Moore1HistAdder-154803-20150614T005209-EOR.root",
     "hcalEnergy": "hists/Moore1HistAdder-154807-20150614T015931-EOR.root",
     "avgMass": "hists/Moore1HistAdder-154825-20150614T042801-EOR.root",
-    "invariantMass":"hists/Moore1HistAdder-154812-20150614T022928-EOR.root"
+    "invariantMass":"hists/YetAnotherHist0.root",
+    "dkpipi":"hists/YetAnotherHist_dkpipi.root",
+    "dskkpi":"hists/YetAnotherHist_dskkpi.root",
+    "lambdac":"hists/YetAnotherHist_lambdac.root",
+    "phi":"hists/YetAnotherHist_phi.root",
+    
     }
 # name: branch
 hist_branches = { 
     "muonHits": "Hlt1RoutingBitsWriter/RoutingBit33",
     "hcalEnergy": "Hlt1RoutingBitsWriter/RoutingBit33",
     "avgMass": "Hlt1RoutingBitsWriter/RoutingBit33",
-    "invariantMass": "Hlt1RoutingBitsWriter/RoutingBit33",
-
+    "invariantMass": "RoutingBit33",
+    "dkpipi":"RoutingBit33",
+    "dskkpi":"RoutingBit33",
+    "lambdac":"RoutingBit33",
+    "phi":"RoutingBit33",
     }
 
 #dummies
@@ -36,7 +48,7 @@ def _add_dummies(n_dummies):
     """add some dummy variables to make event look like a real one"""
     import os
     import random
-    all_hists =filter( lambda tfile_name: tfile_name.endswith(".root"), os.listdir("hists"))
+    all_hists =filter( lambda tfile_name: tfile_name.endswith("EOR.root"), os.listdir("hists"))
 
     for i in xrange(n_dummies):
         hist_name = random.choice(all_hists)

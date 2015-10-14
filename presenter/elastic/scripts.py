@@ -61,7 +61,7 @@ def conventionalRealValueHistogram(field_name, interval, max_bins =0):
     }#/agg
     return agg
 
-from expression_generator import binsearch_expression, heatmap_expression
+from expression_generator import binsearch_expression, heatmap_expression,heatmap_expression_one_tree
 
 def realValueHistogram(field_name, xmin,xmax, n_bins):
     """
@@ -94,13 +94,17 @@ def realValueHistogram(field_name, xmin,xmax, n_bins):
 
     
 
-def heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname):
+def heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname,generator = 'default'):
     """
     A 2D histogram of the (xname,yname values with arbitrary amount bins over x and y (xbins and ybins),
     bins corresponding to uniform intervals between xmin and xmax.
     
     xname and yname must be string names of variables as specified in index (p.e. "muonHits", but NOT "doc['muonHits']")
     
+    "generator" arg determines the way Lucene Expression scripts are generated,
+        generator = "default" or "two-trees" generates 2 separate trees for X and Y and returns x_tree + x_bins*y_tree
+        generator = "single-tree" generates one tree that returns both X and Y 
+
     !!!WARNING!!! the keys definition here differs from the realValueHistogram output (bin centers vs bin ids)
 
     Search output: "Terms" aggregation bins (key:bin_number, doc_count:count), e.g. 
@@ -119,9 +123,14 @@ def heatmap(xmin,xmax,xbins,xname,ymin,ymax,ybins,yname):
     vpattern = "doc['{}'].value"
     varxname = vpattern.format(xname)
     varyname = vpattern.format(yname)
+    
+    if generator=='default':
+        heatmap_gen = heatmap_expression  
+    else:
+        heatmap_gen = heatmap_expression_one_tree
     agg={
         "terms": {
-                "script" : heatmap_expression(xmin,xmax,xbins,ymin,ymax,ybins,varxname,varyname),
+                "script" : heatmap_gen(xmin,xmax,xbins,ymin,ymax,ybins,varxname,varyname),
                 "lang" : "expression" ,
                 'size' : "0",
                 }#/terms

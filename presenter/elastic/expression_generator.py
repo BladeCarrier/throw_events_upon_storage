@@ -35,6 +35,24 @@ def heatmap_expression(xmin,xmax,xbins,ymin,ymax,ybins,xname="doc['var1'].value"
     """like the binsearch_expression (and based on it), generates an expression script that
     maps data into bin_id on a 2D histogram (a.k.a. heatmap) over x and y.
     Bin ids are defined as x_bin_id + y_bin_id*xbins, both bin_ids starting from 0 and increasing over the corresponding axes (x or y)
+    The expression itself is O(xbins*log(2,xbins)+ybins*log(2,ybins)) code length and O(log(n_bins)) execution time, 
+    where n_bins = xbins*ybins.
+    The script is meant to be used inside terms aggreagation for elasticsearch to return (bin_id, count) pairs.
+    Expression script than gets heavily optimized by Lucene on the server side.
+    """
+    tree_x = binsearch_expression(xmin,xmax,xbins,
+                                    variable_name = xname
+                                    )
+    tree_y = binsearch_expression(ymin,ymax,ybins,
+                                    variable_name = yname
+                                    )
+    return "({y})*{xbins} + {x}".format(y = tree_y, xbins = xbins,x=tree_x)
+    
+
+def heatmap_expression_one_tree(xmin,xmax,xbins,ymin,ymax,ybins,xname="doc['var1'].value",yname="doc['var2'].value"):
+    """like the binsearch_expression (and based on it), generates an expression script that
+    maps data into bin_id on a 2D histogram (a.k.a. heatmap) over x and y.
+    Bin ids are defined as x_bin_id + y_bin_id*xbins, both bin_ids starting from 0 and increasing over the corresponding axes (x or y)
     The expression itself is O(n_bins*log(2,n_bins)) code length and O(log(n_bins)) execution time, where n_bins = xbins*ybins.
     The script is meant to be used inside terms aggreagation for elasticsearch to return (bin_id, count) pairs.
     Expression script than gets heavily optimized by Lucene on the server side.

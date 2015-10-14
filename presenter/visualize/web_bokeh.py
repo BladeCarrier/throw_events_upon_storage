@@ -13,9 +13,10 @@ def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
     hist,edges = np.histogram(x,
                 range = [xmin,xmax],bins= xbins ,
                 weights=c)
-    return ax.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
+    ax.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649",\
     )
+    return figure
      
 from bokeh.models import DataRange1d as brange
 

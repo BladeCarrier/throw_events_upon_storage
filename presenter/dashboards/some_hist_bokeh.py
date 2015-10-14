@@ -1,3 +1,5 @@
+#prototype code; view at your own risk
+__doc__="demo dashboard that visualizes 1d dummy histogram"
 import sys
 sys.path.append("..")
 from dashboard import Dashboard

@@ -13,7 +13,6 @@ es = elasticsearch.Elasticsearch(["localhost:9200"])
 #/elasticSearch
 #dashboards
 import dashboard
-dashboards = dashboard.fetch_all()
 #/dashboards
 
 
@@ -42,4 +41,7 @@ def show_dashboard():
 
 
 if __name__ == '__main__':
+    dashboards = dashboard.fetch_all()
+    print "all dashboards ready"
+
     app.run(debug=True, host='localhost')

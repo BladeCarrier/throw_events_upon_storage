@@ -1,3 +1,5 @@
+#prototype code; view at your own risk
+__doc__="demo dashboard that visualizes 1d histogram aggregated from ElasticSearch data and fits gaussian+exponential distribution mixture to the data"
 import sys
 sys.path.append("..")
 from dashboard import Dashboard
@@ -13,7 +15,7 @@ import pandas as pd
 class invmass(Dashboard):
     def __init__(self):
         self.name = "invmass_bokeh"
-        xmin,xmax,xbins = 0,10,50
+        xmin,xmax,xbins = -5.,15.,50
 
         bin_separators = np.histogram([],bins=xbins, range=[xmin,xmax])[1]
         bin_centers = np.array([0.5*(bin_separators[i]+bin_separators[i+1]) for i in range(len(bin_separators)-1)])
@@ -34,7 +36,7 @@ class invmass(Dashboard):
         fig = figure()
         
         xname = "invariantMass"
-        xmin,xmax,xbins = 0,10,50
+        xmin,xmax,xbins = -5.,15.,50
         index = "run*"
         
         x,c = vis_bokeh.get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
@@ -54,16 +56,17 @@ class invmass(Dashboard):
         w_sig,w_bkg =np.exp(parameters['sig_weightlog']),np.exp(parameters['bck_weightlog'])
         w_sum = w_sig+w_bkg
         w_sig,w_bkg = w_sig/w_sum,w_bkg/w_sum
-        n_events = np.sum(counts)/10.
+        n_events = np.sum(counts)
+        norm = n_events*(xmax-xmin)/xbins
         
         #plot lines
-        expo = lambda x_arr:st.expon(0,1./parameters['slope']).pdf(x_arr)*w_bkg*n_events
-        gauss = lambda x_arr:st.norm(parameters['mean'],parameters['sigma']).pdf(x_arr)*w_sig*n_events
+        expo = lambda x_arr:st.expon(0,1./parameters['slope']).pdf(x_arr)*w_bkg*norm
+        gauss = lambda x_arr:st.norm(parameters['mean'],parameters['sigma']).pdf(x_arr)*w_sig*norm
         pdf_x = np.arange(1000,dtype='float')/1000.*(xmax-xmin) + xmin
         
         fig.line(pdf_x, expo(pdf_x), legend="Background", line_width=2,color = 'red')
         fig.line(pdf_x, gauss(pdf_x), legend="Signal", line_width=2,color='blue')
-        fig.line(pdf_x, gauss(pdf_x)+gauss(pdf_x), legend="Sum", line_width=2,color='green')
+        fig.line(pdf_x, gauss(pdf_x)+expo(pdf_x), legend="Sum", line_width=2,color='green')
 
         
         return vis_bokeh.fig_to_html(fig)

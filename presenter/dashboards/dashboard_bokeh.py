@@ -1,3 +1,5 @@
+#prototype code; view at your own risk
+__doc__="demo dashboard that visualizes several interactive 1d histograms aggregated from ElasticSearch data"
 import sys
 sys.path.append("..")
 from dashboard import Dashboard

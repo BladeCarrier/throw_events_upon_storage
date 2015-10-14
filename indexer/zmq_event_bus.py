@@ -121,9 +121,8 @@ if __name__ == "__main__":
     try:
         bus = Bus(*sys.argv[1:])
         bus.run_server()
-
-    except e:
-        print "Error happened:",e
+    except:
+        print "Error happened:"
         print "args list with defaults:"
         print """
                  port = 'tcp://127.0.0.1:43000',
