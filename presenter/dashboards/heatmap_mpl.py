@@ -29,7 +29,7 @@ class HeatmapDashboard(Dashboard):
         ymin,ymax = 0,65
         ybins = 20
         yname = "muonHits"
-        HistInfo=vis_mpl.plot_2d_hist(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=ax)
+        HistInfo=vis_mpl.draw_2d_hist_from_es(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=ax)
         #plt.colorbar(HistInfo[3])
         plt.xlabel(xname)
         plt.ylabel(yname)

@@ -12,7 +12,7 @@ class avgmass(Dashboard):
         self.name = "avgmass_bokeh"
     def knit_html(self,es):
         fig = figure()
-        _=vis_bokeh.plot_1d_hist("avgMass",0,70,50,es,"run*",ax=fig)
+        _=vis_bokeh.draw_1d_hist_from_es("avgMass",0,70,50,es,"run*",ax=fig)
         return vis_bokeh.fig_to_html(fig)
     
 

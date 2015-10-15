@@ -57,19 +57,14 @@ class BokehGridWithMixtures(Dashboard):
         return mix
 
     def make_figure(self,hist,model,es,index="run*"):
-        xname,xmin,xmax,xbins = hist.name,hist.xmin,hist.xmax,hist.xbins
-        fig = figure()
+        xname,xmin,xmax,xbins = hist.name,hist.xmin,hist.xmax,hist.xbins        
         
+        x,counts = vis_bokeh.get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
         
-        x,c = vis_bokeh.get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
-        counts,edges = np.histogram(x,
-                range = [xmin,xmax],bins= xbins ,
-                weights=c)
+        deltas = np.sqrt(counts)
         
-        #draw histogram bins
-        fig.quad(top=counts, bottom=0, left=edges[:-1], right=edges[1:],
-                         fill_color="#ffffff", line_color="#034903",\
-                        )
+        fig=vis_bokeh.whiskered_histogram(xmin,xmax,xbins,counts,deltas,-deltas)
+        
         #fit params
         model.fit(sample_weight=counts,values_init={'sigma':1.})
         parameters = model.parameters

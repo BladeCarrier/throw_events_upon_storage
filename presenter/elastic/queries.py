@@ -10,7 +10,7 @@ def parse_terms_1d(data,xmin,xmax,n_bins,starting_id=0):
     
     bin_width = (xmax-xmin)/float(n_bins)
     bin_bounds = [xmin + bin_width*i for i in xrange(n_bins)]+[xmax]
-    hist_bins =  [ (0.5*(bin_bounds[i]+bin_bounds[i+1]),data_dict[i]) for i in data_dict.keys()]
+    hist_bins =  [ (0.5*(bin_bounds[i]+bin_bounds[i+1]),data_dict.get(i,0)) for i in xrange(n_bins)]
     return hist_bins
 
 def get_1d_hist(xname,xmin,xmax,xbins,es,index="*"):

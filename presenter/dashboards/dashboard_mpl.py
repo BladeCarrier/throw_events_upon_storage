@@ -24,10 +24,10 @@ class MplDashboard(Dashboard):
     def knit_html(self,es):
         fig, axes = plt.subplots(3,2,figsize = [10,15])
 
-        _=vis_mpl.plot_1d_hist("avgMass",0,70,50,es,"run*",ax=axes[0,0])
+        _=vis_mpl.draw_1d_hist_from_es("avgMass",0,70,50,es,"run*",ax=axes[0,0])
         axes[0,0].set_xlabel("avgMass")
 
-        _=vis_mpl.plot_1d_hist("muonHits",0,70,50,es,"run*",ax=axes[1,1])
+        _=vis_mpl.draw_1d_hist_from_es("muonHits",0,70,50,es,"run*",ax=axes[1,1])
         axes[1,1].set_xlabel("avgTODO")
 
         xmin,xmax = 0,65
@@ -36,7 +36,7 @@ class MplDashboard(Dashboard):
         ymin,ymax = 0,65
         ybins = 20
         yname = "muonHits"
-        HistInfo=vis_mpl.plot_2d_hist(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=axes[2,1])
+        HistInfo=vis_mpl.draw_2d_hist_from_es(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=axes[2,1])
         axes[2,1].set_xlabel(xname)
         axes[2,1].set_ylabel(yname)
 
@@ -46,7 +46,7 @@ class MplDashboard(Dashboard):
         ymin,ymax = 0,65
         ybins = 20
         yname = "muonHits"
-        HistInfo=vis_mpl.plot_2d_hist(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=axes[0,1])
+        HistInfo=vis_mpl.draw_2d_hist_from_es(xname,xmin,xmax,xbins,yname,ymin,ymax,ybins,es,index="run*",ax=axes[0,1])
         axes[0,1].set_xlabel(xname)
         axes[0,1].set_ylabel(yname)
 

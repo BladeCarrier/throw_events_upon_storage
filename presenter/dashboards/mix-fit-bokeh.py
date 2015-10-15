@@ -39,15 +39,11 @@ class invmass(Dashboard):
         xmin,xmax,xbins = -5.,15.,50
         index = "run*"
         
-        x,c = vis_bokeh.get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
-        counts,edges = np.histogram(x,
-                range = [xmin,xmax],bins= xbins ,
-                weights=c)
+        x,counts = vis_bokeh.get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
         
-        #draw histogram bins
-        fig.quad(top=counts, bottom=0, left=edges[:-1], right=edges[1:],
-                         fill_color="#036564", line_color="#033649",\
-                        )
+        deltas = np.sqrt(counts)
+        
+        fig=vis_bokeh.whiskered_histogram(xmin,xmax,xbins,counts,deltas,-deltas)
         
         #fit params
         model = self.model

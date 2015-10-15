@@ -4,9 +4,9 @@ from elastic.queries import get_1d_hist, get_2d_hist
 import matplotlib.pyplot as plt
 
 
-def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
+def draw_1d_hist_from_es(xname,xmin,xmax,xbins,es,index="*",ax=None):
     """i plot the histogram of a variable xname between xmin,xmax with xbins uniform bins.
-	i require es to be an elasticsearch.Elasticsearch client. """
+    i require es to be an elasticsearch.Elasticsearch client. """
     if ax is None:
         ax = plt
     x,c = get_1d_hist(xname,xmin,xmax,xbins,es,index=index)
@@ -14,7 +14,7 @@ def plot_1d_hist(xname,xmin,xmax,xbins,es,index="*",ax=None):
                 range = [xmin,xmax],bins= xbins ,
                 weights=c)
     
-def plot_2d_hist(xname,xmin,xmax,xbins,
+def draw_2d_hist_from_es(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
                  es,index="*",ax = None):
     """i plot the 2d histogram (heatmap) of a variables xname and yname 
