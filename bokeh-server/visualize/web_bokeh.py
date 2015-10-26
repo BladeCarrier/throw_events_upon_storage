@@ -8,6 +8,7 @@ import numpy as np
 def classic_histogram(xmin,xmax,xbins,counts,fig=None,
                              line_color="#033649",
                              fill_color="white",
+                             name_quads="quads"
                              ):
     """draw (on a fig, or on a new figure) a classical histogram
     output: a figure with abovementioned hist on it
@@ -31,7 +32,7 @@ def classic_histogram(xmin,xmax,xbins,counts,fig=None,
     edges = np.histogram([], range = [xmin,xmax],bins= xbins )[1]
     
     fig.quad(top=counts, bottom=0, left=edges[:-1], right=edges[1:],
-            fill_color=fill_color, line_color=line_color)
+            fill_color=fill_color, line_color=line_color,name=name_quads)
     return fig
 
 def whiskered_histogram(xmin,xmax,xbins,counts,deltas1,deltas2,fig=None,
@@ -41,6 +42,11 @@ def whiskered_histogram(xmin,xmax,xbins,counts,deltas1,deltas2,fig=None,
                              vline_width = 0.3,#whisker stem
                              hline_width = 0.01,#whisker cap
                              whisker_color="black",
+                             name_centers="centers",
+                             name_whisker_stems1="stems1",
+                             name_whisker_stems2="stems2",
+                             name_whisker_caps1="caps1",
+                             name_whisker_caps2="caps2",
                              ):
     """draw (on a fig, or on a new figure) a CERN-ish whiskered histogram
     output: a figure with abovementioned hist on it
@@ -69,13 +75,13 @@ def whiskered_histogram(xmin,xmax,xbins,counts,deltas1,deltas2,fig=None,
 
     # whiskers (almost-0 height rects simpler than segments)
     #vertical
-    fig.segment(bin_centers, counts, bin_centers, counts+deltas1, line_width=vline_width, line_color=whisker_color)
-    fig.segment(bin_centers, counts, bin_centers, counts+deltas2, line_width=vline_width, line_color=whisker_color)
+    fig.segment(bin_centers, counts, bin_centers, counts+deltas1, line_width=vline_width, line_color=whisker_color,name=name_whisker_stems1)
+    fig.segment(bin_centers, counts, bin_centers, counts+deltas2, line_width=vline_width, line_color=whisker_color,name=name_whisker_stems2)
     #horizontal
-    fig.rect(bin_centers, counts+deltas1, whisker_breadth, hline_width, line_color=whisker_color,color="white")
-    fig.rect(bin_centers, counts+deltas2, whisker_breadth, hline_width, line_color=whisker_color,color="white")
+    fig.rect(bin_centers, counts+deltas1, whisker_breadth, hline_width, line_color=whisker_color,color="white",name=name_whisker_caps1)
+    fig.rect(bin_centers, counts+deltas2, whisker_breadth, hline_width, line_color=whisker_color,color="white",name=name_whisker_caps2)
     #draw centers last above everything else
-    fig.scatter(bin_centers,counts,size=point_size,color=center_color) 
+    fig.scatter(bin_centers,counts,size=point_size,color=center_color,name=name_centers) 
     return fig
 
 def draw_1d_hist_from_es(xname,xmin,xmax,xbins,es,index="*",ax=None,hist_drawer="whiskers"):
@@ -96,34 +102,52 @@ def draw_1d_hist_from_es(xname,xmin,xmax,xbins,es,index="*",ax=None,hist_drawer=
         
     return hist_drawer(xmin,xmax,xbins,c,fig=ax)
      
-from bokeh.models import DataRange1d as brange
+import matplotlib as mpl
+import matplotlib.cm as cm
+def classic_heatmap(x,y,c,xmin,xmax,xbins,ymin,ymax,ybins,fig=None,quad_name="quads",cmap = cm.gist_earth):
+    """i plot the 2d histogram using bokeh.quad;
+    over x axis i plot histogram with xbins of the xname variable between xmin and xmax
+    over y axis i plot histogram with ybins of the yname variable between ymin and ymax
+    the cmap argument has to be a matplotlib.cm colormap"""
+
+    if fig is None:
+        fig = figure()
+
+    #compute color codes using the given cmap
+    norm = mpl.colors.Normalize(vmin=np.min(c), vmax=np.max(c))
+    mapper = cm.ScalarMappable(norm,cmap)
+    colors_int = (mapper.to_rgba(c)*256).astype(int)
+
+    ascode = lambda (r,g,b,a):"#{:02x}{:02x}{:02x}".format(r,g,b)
+    color_codes = np.apply_along_axis(ascode,-1,colors_int)
+
+    #compute size of bins
+    bin_halfwidth = 0.5*(xmax-xmin)/float(xbins)
+    bin_halfheight = 0.5*(ymax-ymin)/float(ybins)
+
+    fig.quad(left = x - bin_halfwidth,right = x + bin_halfwidth,
+             top = y +bin_halfheight,bottom = y - bin_halfheight,
+             color=color_codes,name=quad_name)
+
+    return fig
+
 
 def draw_2d_hist_from_es(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
-                 es,index="*",ax = None):
+                 es,index="*",ax = None,
+                 cmap = cm.gist_earth,quad_name="quads"):
     """i plot the 2d histogram (heatmap) of a variables xname and yname 
     between [xmin,xmax],[ymin,ymax] with [xbins,ybins] uniform bins respectively.
     i require es to be an elasticsearch.Elasticsearch client"""
-    if ax is None:
-        ax = figure()
     
     x,y,c = get_2d_hist(xname,xmin,xmax,xbins,
                  yname,ymin,ymax,ybins,
                  es,index=index)
-    bin_w = (xmax-xmin)/float(xbins)
-    bin_h = (ymax-ymin)/float(ybins)
-    x = map(lambda x_i: int(x_i/bin_w), x) 
-    y = map(lambda y_i: int(y_i/bin_h), y) 
+    x,y,c = map(np.array,[x,y,c])
+    ax = classic_heatmap(x,y,c,xmin,xmax,xbins,ymin,ymax,ybins,
+                       fig=ax,cmap=cmap,quad_name=quad_name)
 
-    
-    
-    ax.x_range= brange(start=xmin,end=xmax)
-    ax.y_range= brange(start=ymax,end=ymin)
-    img = np.zeros([xbins,ybins])
-    img[x,y] = c
-    return ax.image(image=[img], x=[xmin], y=[ymax], 
-         dw=[xmax-xmin], dh=[ymax-ymin], palette='RdYlBu11')
-
+    return ax
 
 
 from bokeh.document import Document

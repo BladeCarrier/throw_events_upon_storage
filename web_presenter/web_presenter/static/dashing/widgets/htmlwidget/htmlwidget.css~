@@ -1,0 +1,25 @@
+.widget-htmlwidget {
+    background-color: #0f0f0f;
+}
+
+.widget-htmlwidget h1 { 
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.widget-htmlwidget h2 {
+    color: #000000;
+}
+
+.widget-htmlwidget .detail {
+    font-weight: 500;
+    font-size: 30px;
+    color: #000000;
+}
+
+.widget-htmlwidget .more-info {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.widget-htmlwidget .updated-at {
+    color: rgba(0, 0, 0, 0.7);
+}

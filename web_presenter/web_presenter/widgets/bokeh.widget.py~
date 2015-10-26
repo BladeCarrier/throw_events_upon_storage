@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+__doc__="demo dashboard that visualizes 1d histogram aggregated from ElasticSearch data"
+import sys
+import json
+from bokeh.charts import Histogram
+from bokeh.plotting import figure  
+import visualize.web_bokeh as vis_bokeh
+import elasticsearch
+
+from common import HTMLWidget
+
+import time
+
+
+es = elasticsearch.Elasticsearch(["localhost:9200"])
+
+class BokehHistWidget(HTMLWidget):
+    def __init__(self):
+        """called once widget is refreshed"""
+	pass
+    def get_value(self):
+        fig = figure()
+        _=vis_bokeh.draw_1d_hist_from_es("avgMass",0,40,50,es,"run*",ax=fig)
+        fig.xaxis.axis_label = time.strftime("%H:%M:%S")
+        self.prepared_html = vis_bokeh.fig_to_html(fig)
+
+        return self.prepared_html
+
+
+def make_html():
+    """i knit a bokeh html if asked from AJAX"""
+
+
+def get_urls():
+    
+NAME = "HistWidget"
+
+def get_widget():
+    return BokehHistWidget

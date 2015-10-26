@@ -118,7 +118,7 @@ def draw_2d_hist_from_es(xname,xmin,xmax,xbins,
     
     
     ax.x_range= brange(start=xmin,end=xmax)
-    ax.y_range= brange(start=ymax,end=ymin)
+    ax.y_range= brange(start=xmax,end=xmin)
     img = np.zeros([xbins,ybins])
     img[x,y] = c
     return ax.image(image=[img], x=[xmin], y=[ymax], 

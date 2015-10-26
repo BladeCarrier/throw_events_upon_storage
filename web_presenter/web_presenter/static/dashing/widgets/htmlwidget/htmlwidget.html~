@@ -1,0 +1,6 @@
+<form>
+    <div align="left" rv-dashing-htmlwidget="value">
+        <div id="id1" style="display: inline"> </div>
+        <div id="id2" style="display: none"> </div>
+    </div>
+</form>
