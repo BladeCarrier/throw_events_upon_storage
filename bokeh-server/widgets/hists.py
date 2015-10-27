@@ -79,6 +79,7 @@ class _BaseHistWidget(_BaseWidget):
         xname,xmin,xmax,xbins = self.xname,self.xmin,self.xmax,self.xbins
         
         x,c = get_1d_hist(xname,xmin,xmax,xbins,es,index = index)
+        x,c = map(np.array,[x,c])
         self.binx, self.binc = x,c
         return x,c
     def get_updates(self):

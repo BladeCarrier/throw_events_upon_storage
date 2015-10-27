@@ -36,12 +36,17 @@ class ReferenceOverlay(_BaseWidget):
         """draws the pdf lines"""        
         base = self.base
         counts = base.binc
+        bins = base.binx
         
+        n_events =np.sum(counts) 
         pts_x = self.pts_x
-        pts_y = self.pts_y_per_evt*self.bin_density*np.sum(counts)
+        pts_y = self.pts_y_per_evt*n_events
         
+        ref_counts = self.pdf(bins) * self.bin_density *n_events
         
-        fig.line(pts_x, pts_y, legend="Reference", line_width=2,color = 'red',name ="ref")
+        chi2 = np.sum( ((counts - ref_counts) **2 )/counts )/n_events 
+        
+        fig.line(pts_x, pts_y, legend="Reference\n[chi2/ndof = {0:.2f}]".format(chi2), line_width=2,color = 'red',name ="ref")
         return fig
 
     def get_updates(self):
@@ -53,10 +58,17 @@ class ReferenceOverlay(_BaseWidget):
         base = self.base
         counts = base.binc
         
-        pts_y = self.pts_y_per_evt*np.sum(counts)
+        n_events = np.sum(counts)
+        
+        pts_y = self.pts_y_per_evt*n_events
+        
+        ref_counts = self.pdf(bins) * self.bin_density *n_events        
+        chi2 = np.sum( ((counts - ref_counts) **2 )/counts )/n_events 
+        
         
         ref_ds = self.fig.select(dict(name="ref"))[0].data_source
         ref_ds.data["y"] = pts_y
+        ref_ds.data["legend"]="Reference [chi2/ndof =\n{0:.2f}]".format(chi2)
 
         overlay_updates = [ref_ds]
         

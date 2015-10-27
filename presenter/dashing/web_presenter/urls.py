@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from dashing.utils import router
+from django.views.generic.base import RedirectView
 
 import widgets
 widget_urls = widgets.register_all(router)
@@ -26,4 +27,5 @@ widget_urls = widgets.register_all(router)
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dashboard/', include(router.urls), name='myDashboard'),
+    url(r'^$', RedirectView.as_view(url='dashboard/'), name='index'),
 ] + widget_urls
