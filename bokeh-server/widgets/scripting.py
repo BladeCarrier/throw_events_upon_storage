@@ -32,6 +32,8 @@ def assemble_script(widget_name,source_html):
     params = dict(map(lambda s: s.split("="),params)) #split key-value
     
     params["src"] = 'hostname+":' + "".join(params["src"].split(":")[2:])
+    params["data-bokeh-root-url"] = 'hostname+":' + "".join(params["data-bokeh-root-url"].split(":")[2:])
+    
     
     
     params = map(lambda (k,v): '        bokeh_script.setAttribute("{}",{});'.format(k,v), params.items())
