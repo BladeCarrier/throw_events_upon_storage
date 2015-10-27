@@ -235,7 +235,7 @@ class DistributionsMixture(object):
                     'For variable {} passed initial value was outside range'.format(param_name)
 
         if values_init is not None:
-            assert type(values_init) is dict
+            #assert type(values_init) is dict
             for i,param_name in enumerate(self.parameters_ranges.keys()):
                 if param_name in values_init:
                     initial_values[i] = values_init[param_name]

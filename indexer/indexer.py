@@ -19,6 +19,7 @@ class Indexer:
         """create new index to store events in"""
         answer = self.es.indices.create(index_name,body={"mappings":{"event":event.es_event_mapping}})
         return answer[u'acknowledged']
+
     def start_indexing(self):
         """main loop that takes events from the bus and saves them into the indices corresponding to their run_id"""
         client = self.client
@@ -61,15 +62,12 @@ class Indexer:
             events= event.from_zmq_package(package)
             
             for evt in events:
-                try:
-                    es.index(index=self.current_run_id,
+                es.index(index=self.current_run_id,
                          doc_type="event",
                          id=n_events_in_run,
                          body=evt)
-                    n_events_in_run+=1
-                except:
-                    pass
-              
+                n_events_in_run+=1
+
                 
             if verbose:
                 print n_events_in_run,"events indexed in current run_id"

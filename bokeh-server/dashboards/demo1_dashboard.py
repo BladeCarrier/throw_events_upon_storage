@@ -6,19 +6,19 @@ from bokeh.plotting import figure, hplot,vplot, output_server, cursession, show
 from bokeh.session import Session
 
 import sys
+sys.path.append("")
 
-#killmepls
-sys.path.append(sys.path[0][:-11])
-#killmepls
-
-from widgets.es_bokeh import *
+from widgets.hists import *
+from widgets.overlay import *
+from widgets.scripting import assemble_script
 
 dashboard_name = "dashboard1"
 #django way
-path_to_django_static = "/notebooks/web_presenter/web_presenter/static"
+path_to_django_static = "../presenter/dashing/web_presenter/static"
 #flask way
-path_to_flask_static = "/notebooks/throw_events_upon_storage/presenter/static"
+path_to_flask_static = "../presenter/static"
 
+host_name = "webpresenter-proto.cern.ch"
 bs_login = "bladeCarrier"
 bs_password= "243414Aa"
 
@@ -31,6 +31,9 @@ es = elasticsearch.Elasticsearch(["localhost:9200"])
 widgets= []
 client = cursession()
 whole_dashboard=0
+
+
+
 
 def prepare_widgets():
     print "initializing..."
@@ -55,8 +58,9 @@ def prepare_widgets():
     bin_centers = np.array([0.5*(bin_separators[i]+bin_separators[i+1]) for i in range(len(bin_separators)-1)])
     bins = pd.DataFrame({"x":bin_centers})
 
+    expo_gap = lambda x,slope: (x>=xmin)*(x<=xmax)*distfit.exponential(x-xmin,slope)/(1.-np.e**(-(xmax-xmin)*slope))
     mix_model = distfit.DistributionsMixture(
-        distributions={'sig': distfit.gauss, 'bck': distfit.exponential},
+        distributions={'sig': distfit.gauss, 'bck': expo_gap},
         weights_ranges={'sig': [1.,10.], 'bck': [1.,10.]},
         parameter_ranges={'mean': [xmin ,xmax], 'sigma': [0., xmax-xmin], 'slope': [0, 15.]},
         column_ranges={'x': [xmin, xmax]},
@@ -85,6 +89,15 @@ def prepare_widgets():
                           es,fig = figure(plot_width=600, plot_height=600),)
     widgets.append(hist3)
 
+    #hist4: hist with reference
+    hist4_base = ClassicHistWidget("dskkpi",1920,2020,30,es,
+                       fig = figure(plot_width=600, plot_height=600,tools=['wheel_zoom','ywheel_zoom','pan','reset']))
+    
+    from scipy.stats import laplace
+    pdf = laplace(1970,7).pdf
+    hist4 = ReferenceOverlay(hist4_base,pdf)
+    widgets.append(hist4)    
+    
     ###end CREATE PLOTS
 
     print "publishing plots..."
@@ -94,7 +107,7 @@ def prepare_widgets():
     plots = [ hplot(widget.fig) for widget in widgets ]
 
     global whole_dashboard
-    whole_dashboard = vplot(hplot(*plots[:2]),plots[2])
+    whole_dashboard = vplot(hplot(*plots[:2]),hplot(*plots[2:]))
     plots.append(whole_dashboard)    
 
     for plot in plots:
@@ -109,7 +122,9 @@ def prepare_widgets():
     scripts = [autoload_server(plot,client,public=True) for plot in plots]
 
 
+    
     print "saving widget scripts..."
+    
     #remove previous widgets
     for path_to_static in path_to_django_static,path_to_flask_static:
         path_to_widgets = os.path.join(path_to_static,dashboard_name)
@@ -117,7 +132,11 @@ def prepare_widgets():
         os.system("rm -rf " + path_to_widgets)
         os.mkdir(path_to_widgets)
 
-        for i, script in enumerate(scripts):
+        for i, source_script in enumerate(scripts):
+            
+            #convert script...
+            script = assemble_script("widget"+str(i),source_script)
+            
             with open("{}/widget{}.html".format(path_to_widgets,i),'w') as fscript:
                 fscript.write(script)
     
@@ -130,8 +149,8 @@ def start_updating(dt=0.5):
     print  "now updating..."
     while True:
         for widget in widgets:
-            upd_sources = widget.get_updates()
             try:
+                upd_sources = widget.get_updates()        
                 client.store_objects(*upd_sources)
             except:pass
 

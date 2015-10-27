@@ -44,4 +44,4 @@ if __name__ == '__main__':
     dashboards = dashboard.fetch_all()
     print "all dashboards ready"
 
-    app.run(debug=True, host='localhost')
+    app.run(debug=True, host='0.0.0.0')

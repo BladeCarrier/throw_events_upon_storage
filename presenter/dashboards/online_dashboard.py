@@ -11,7 +11,7 @@ class some_hist_bokeh(Dashboard):
     def __init__(self):
         self.name = "Online Dashboard"
     def knit_html(self,es):
-        with open("static/dashboard1/widget3.html") as fdash:
+        with open("static/dashboard1/widget4.html") as fdash:
             html = fdash.read()
         return html
 
